@@ -1,12 +1,20 @@
 package com.ai.backpropagationdemo.layer;
 
 import com.ai.backpropagationdemo.activation.ActivationFunction;
+import com.ai.backpropagationdemo.batch.Batch;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 
 public class Layer {
 
-    private ActivationFunction activationFunction;
+    private final ActivationFunction activationFunction;
 
+    @Getter
     private double[][] weights;
 
     private double[] biases;
@@ -15,13 +23,6 @@ public class Layer {
 
     private final int outputDimension;
 
-    private double[] weightedInput;
-
-    @Getter
-    private double[] output;
-
-    @Getter
-    private double[] signal;
 
     public Layer(int inputDimension, int outputDimension, ActivationFunction activationFunction) {
         this.inputDimension = inputDimension;
@@ -29,16 +30,12 @@ public class Layer {
         this.activationFunction = activationFunction;
         initializeWeights();
         initializeBiases();
-
-
     }
 
-    public double[] forward(double[] input) {
+    public double[] getWeightedInput(double[] input) {
         if(input.length != inputDimension)
             throw new IllegalArgumentException("The given input's dimension does not match the layer's input dimension");
-
-        output = new double[outputDimension];
-        weightedInput = new double[outputDimension];
+        double[] weightedInput = new double[outputDimension];
         // computing the weight matrix multiplication = bias
         for(int i = 0; i < outputDimension; i++){
             weightedInput[i] = biases[i];
@@ -46,19 +43,21 @@ public class Layer {
                 weightedInput[i] += weights[i][j]*input[j];
             }
         }
-
-        output = activationFunction.apply(weightedInput);
-        return output;
+        return weightedInput;
     }
 
-    public double[] derivative() {
+    public Pair<double[],double[]> forward(double[] input) {
+
+        double[] weightedInput = getWeightedInput(input);
+        double[] output = activationFunction.apply(weightedInput);
+
+        return  Pair.of(weightedInput,output);
+    }
+
+    public double[] derivative(double[]  weightedInput) {
+        if(weightedInput.length != outputDimension)
+            throw new IllegalArgumentException("The given weighted input's dimension does not match the layer's output dimension");
         return activationFunction.derivative(weightedInput);
-    }
-
-    public void setSignal(double[] signal) {
-        if(signal.length != outputDimension)
-            throw new IllegalArgumentException("The given signal's dimension does not match the layer's output dimension");
-        this.signal = signal;
     }
 
     private void initializeWeights() {
