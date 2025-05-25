@@ -17,8 +17,10 @@ public class Layer {
     @Getter
     private double[][] weights;
 
+    @Getter
     private double[] biases;
 
+    @Getter
     private final int inputDimension;
 
     private final int outputDimension;
@@ -34,7 +36,7 @@ public class Layer {
 
     public double[] getWeightedInput(double[] input) {
         if(input.length != inputDimension)
-            throw new IllegalArgumentException("The given input's dimension does not match the layer's input dimension");
+            throw new IllegalArgumentException(String.format("The given input's dimension [%s] does not match the layer's input dimension [%s]", input.length,inputDimension));
         double[] weightedInput = new double[outputDimension];
         // computing the weight matrix multiplication = bias
         for(int i = 0; i < outputDimension; i++){
@@ -76,4 +78,16 @@ public class Layer {
         }
     }
 
+    public void adjust(double[][] accumulatedDW, double[] accumulatedDB) {
+        if(accumulatedDW.length != outputDimension || accumulatedDW[0].length != inputDimension)
+            throw new IllegalArgumentException("The given accumulatedDW's dimensions do not match the layer's dimensions");
+        if(accumulatedDB.length != outputDimension)
+            throw new IllegalArgumentException("The given accumulatedDB's dimensions do not match the layer's dimensions");
+        for(int i = 0; i < outputDimension; i++){
+            for(int j = 0; j < inputDimension; j++){
+                weights[i][j] += accumulatedDW[i][j];
+            }
+            biases[i] += accumulatedDB[i];
+        }
+    }
 }

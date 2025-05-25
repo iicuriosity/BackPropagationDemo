@@ -3,8 +3,7 @@ package com.ai.backpropagationdemo.network;
 import com.ai.backpropagationdemo.activation.ActivationFunction;
 import com.ai.backpropagationdemo.engine.NetworkExecutionEngine;
 import com.ai.backpropagationdemo.layer.Layer;
-import com.ai.backpropagationdemo.loss.LossFunction;
-import com.ai.backpropagationdemo.training.TrainingPolicy;
+import com.ai.backpropagationdemo.training.TrainingStrategy;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class UniformActivationNetwork {
     private final NetworkExecutionEngine networkExecutionEngine;
 
 
-    public UniformActivationNetwork(int numInputs, int numberOfLayers, int[]  perceptronsAtEachLayer,ActivationFunction activationFunction) {
+    public UniformActivationNetwork(int numInputs, int numberOfLayers, int[]  perceptronsAtEachLayer,ActivationFunction activationFunction, TrainingStrategy trainingStrategy) {
 
         if(numberOfLayers!=perceptronsAtEachLayer.length){
             throw new IllegalArgumentException("Number of layers must be equal to number of perceptrons each layer");
@@ -43,17 +42,14 @@ public class UniformActivationNetwork {
             Layer layer = new Layer(layerInputDimension, this.perceptronsAtEachLayer[i], this.activationFunction);
             layers.add(layer);
         }
-        networkExecutionEngine = new NetworkExecutionEngine(layers);
-
+        networkExecutionEngine = new NetworkExecutionEngine(layers, trainingStrategy);
 
     }
 
 
 
-    public void train(TrainingPolicy trainingPolicy) {
-        // TODO implement this
-        trainingPolicy.train(layers);
-
+    public void train() {
+        networkExecutionEngine.train();
     }
 
     public double[] forward(double[] inputs) {

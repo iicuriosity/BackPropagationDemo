@@ -1,17 +1,16 @@
 package com.ai.backpropagationdemo.engine;
 
 import com.ai.backpropagationdemo.layer.Layer;
+import com.ai.backpropagationdemo.training.TrainingStrategy;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 
+@RequiredArgsConstructor
 public class NetworkExecutionEngine {
 
     private final ArrayList<Layer> layers;
-
-    public NetworkExecutionEngine(ArrayList<Layer> layers) {
-        this.layers = layers;
-
-    }
+    private final TrainingStrategy trainingStrategy;
 
     public double[] forward(double[] inputs) {
         double[] layerInput = inputs;
@@ -21,5 +20,9 @@ public class NetworkExecutionEngine {
         }
 
         return layerInput;
+    }
+
+    public void train(){
+        trainingStrategy.train(layers);
     }
 }
